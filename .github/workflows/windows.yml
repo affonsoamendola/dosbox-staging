@@ -61,6 +61,8 @@ jobs:
         env:
           PATH: '${env:PATH};C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\amd64'
         run: |
+          dir 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Redist\MSVC\'
+          exit 1
           cd vs
           MSBuild -m dosbox.sln -p:Configuration=Debug -p:Platform=${{ matrix.conf.arch }} | Tee-Object build.log
       - name:  Summarize warnings
@@ -151,6 +153,8 @@ jobs:
           cp vs/$RELEASE_DIR/libpng16.dll         dest/
           cp src/libs/zmbv/$RELEASE_DIR/zlib1.dll dest/ # libpng dependency
           cp src/libs/zmbv/$RELEASE_DIR/zmbv.dll  dest/
+
+          # Include Visual C++ Redistributable files
 
           # Fill README template file
           sed -i "s|%GIT_COMMIT%|$GITHUB_SHA|"               dest/README.txt
