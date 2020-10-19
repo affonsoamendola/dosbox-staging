@@ -166,7 +166,7 @@ jobs:
           readonly VC_REDIST_DIR="$VC_REDIST_PATH/$VC_REDIST_VERSION/${{ matrix.conf.arch }}/Microsoft.VC142.CRT"
           cp "$VC_REDIST_DIR/msvcp140.dll"       dest/
           cp "$VC_REDIST_DIR/vcruntime140.dll"   dest/
-          cp "$VC_REDIST_DIR/vcruntime140_1.dll" dest/
+          cp "$VC_REDIST_DIR/vcruntime140_1.dll" dest/ || true # might be missing, depending on arch
 
           # Fill README template file
           sed -i "s|%GIT_COMMIT%|$GITHUB_SHA|"               dest/README.txt
