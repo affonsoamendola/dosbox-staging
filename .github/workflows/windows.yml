@@ -61,8 +61,10 @@ jobs:
         env:
           PATH: '${env:PATH};C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\amd64'
         run: |
-          dir 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Redist\MSVC\'
-          exit 1
+          # dir 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Redist\MSVC\14.27.29016'
+          # exit 1
+          # "app-local" deployment
+          # https://devblogs.microsoft.com/cppblog/how-to-redistribute-the-visual-c-libraries-with-your-application/
           cd vs
           MSBuild -m dosbox.sln -p:Configuration=Debug -p:Platform=${{ matrix.conf.arch }} | Tee-Object build.log
       - name:  Summarize warnings
@@ -129,6 +131,8 @@ jobs:
 
       - name:  Package
         shell: bash
+        env:
+          VC_REDIST_PATH: 'C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Redist/MSVC'
         run: |
           set -x
 
@@ -154,7 +158,15 @@ jobs:
           cp src/libs/zmbv/$RELEASE_DIR/zlib1.dll dest/ # libpng dependency
           cp src/libs/zmbv/$RELEASE_DIR/zmbv.dll  dest/
 
-          # Include Visual C++ Redistributable files
+          # List version of available Visual C++ Redistributable files
+          ls -l "$VC_REDIST_PATH"
+
+          # Include the necessary dlls from one of available versions
+          readonly VC_REDIST_VERSION="14.27.29016"
+          readonly VC_REDIST_DIR="$VC_REDIST_PATH/$VC_REDIST_VERSION/${{ matrix.conf.arch }}/Microsoft.VC142.CRT"
+          cp "$VC_REDIST_DIR/msvcp140.dll"       dest/
+          cp "$VC_REDIST_DIR/vcruntime140.dll"   dest/
+          cp "$VC_REDIST_DIR/vcruntime140_1.dll" dest/
 
           # Fill README template file
           sed -i "s|%GIT_COMMIT%|$GITHUB_SHA|"               dest/README.txt
